@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -62,11 +63,11 @@ public class MainActivity extends AppCompatActivity{
         btn_continue = findViewById(R.id.btn_continue);
         btn_exit = findViewById(R.id.btn_exit);
 
-        OnClick monclick = new OnClick();
-        btn_play.setOnClickListener(monclick);
-        btn_pause.setOnClickListener(monclick);
-        btn_continue.setOnClickListener(monclick);
-        btn_exit.setOnClickListener(monclick);
+        OnClick onclick = new OnClick();
+        btn_play.setOnClickListener(onclick);
+        btn_pause.setOnClickListener(onclick);
+        btn_continue.setOnClickListener(onclick);
+        btn_exit.setOnClickListener(onclick);
 
         //执行动画的对象是iv_cover，// 动画效果是0-360°旋转（用的是浮点数，所以加个f）。
         animator = ObjectAnimator.ofFloat(iv_cover,"rotation",0.0f,360.0f);
@@ -75,8 +76,8 @@ public class MainActivity extends AppCompatActivity{
         animator.setRepeatCount(-1);//设置循环，此处设置的是无限循环。如果是正值，意味着转动多少圈。
 
         //声明一个意图，该意图进行服务的启动，意思是将MusicService里面的服务要传到主程序这里来。
-        Intent mintent = new Intent(MainActivity.this,MusicService.class);
-        bindService(mintent,connection,BIND_AUTO_CREATE);//建立意图中MainActivity与MusicService两对象的服务连接
+        Intent intent = new Intent(MainActivity.this,MusicService.class);
+        bindService(intent,connection,BIND_AUTO_CREATE);//建立意图中MainActivity与MusicService两对象的服务连接
 
         seekBarListener msbListener = new seekBarListener();
         sb.setOnSeekBarChangeListener(msbListener);
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case R.id.btn_pause:
                     //停止播放音乐
-                    control.pausePlayer();
+                    control.pausePlay();
                     //光盘停止转
                     animator.pause();
                     break;
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity{
     //Handler主要用于异步消息的处理，在这里是处理子线程MusicService传来的消息
     public static Handler handler = new Handler(Looper.getMainLooper()){
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void handleMessage(@NonNull Message msg) {
             //super.handleMessage(msg);
@@ -136,38 +138,38 @@ public class MainActivity extends AppCompatActivity{
             sb.setProgress(currentDuration);
 
             //显示总时长
-            int minite = duration / 1000 /60;
+            int minute = duration / 1000 /60;
             int second = duration / 1000 % 60;
-            String strMinite = "";
+            String strMinute = "";
             String strSecond = "";
-            if (minite < 10){
-                strMinite = "0" +minite;
+            if (minute < 10){
+                strMinute = "0" +minute;
             }else {
-                strMinite = minite + "";
+                strMinute = minute + "";
             }
             if (second < 10){
                 strSecond = "0" + second;
             }else {
                 strSecond = second + "";
             }
-            tv_total.setText(strMinite + ":" + strSecond);
+            tv_total.setText(strMinute + ":" + strSecond);
 
 
             //显示播放时长
-            minite = currentDuration / 1000 /60;
+            minute = currentDuration / 1000 /60;
             second = currentDuration / 1000 % 60;
 
-            if (minite < 10){
-                strMinite = "0" +minite;
+            if (minute < 10){
+                strMinute = "0" +minute;
             }else {
-                strMinite = minite + "";
+                strMinute = minute + "";
             }
             if (second < 10){
                 strSecond = "0" + second;
             }else {
                 strSecond = second + "";
             }
-            tv_progress.setText(strMinite + ":" + strSecond);
+            tv_progress.setText(strMinute + ":" + strSecond);
         }
     };
 
@@ -180,14 +182,14 @@ public class MainActivity extends AppCompatActivity{
                 animator.pause();
             }
             if (b){//判断是否来自用户
-                control.musicSeekTo(i);
+                control.seekTo(i);
             }
         }
 
         @Override
         //用户开始滑动进度条的监听
         public void onStartTrackingTouch(SeekBar seekBar) {
-            control.pausePlayer();
+            control.pausePlay();
             animator.pause();
         }
 
