@@ -24,11 +24,11 @@ import android.widget.TextView;
 
 import java.util.Timer;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
     private ImageView iv_cover;
     private static SeekBar sb;
-    private static TextView tv_progress,tv_total;
-    private Button btn_play,btn_pause,btn_continue,btn_exit;
+    private static TextView tv_progress, tv_total;
+    private Button btn_play, btn_pause, btn_continue, btn_exit;
 
     private ObjectAnimator animator; //声明一个动画组件ObjectAnimator
 
@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity{
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             control = (MusicService.MusicControl) iBinder;//实例化control。
         }
+
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
 
@@ -52,7 +53,8 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
         init();
     }
-    public void init(){
+
+    public void init() {
         iv_cover = findViewById(R.id.iv_cover);
         sb = findViewById(R.id.sb);
         tv_progress = findViewById(R.id.tv_progress);
@@ -70,25 +72,26 @@ public class MainActivity extends AppCompatActivity{
         btn_exit.setOnClickListener(onclick);
 
         //执行动画的对象是iv_cover，// 动画效果是0-360°旋转（用的是浮点数，所以加个f）。
-        animator = ObjectAnimator.ofFloat(iv_cover,"rotation",0.0f,360.0f);
+        animator = ObjectAnimator.ofFloat(iv_cover, "rotation", 0.0f, 360.0f);
         animator.setDuration(10000); //旋转一周的时长，单位是毫秒，此处设置了10s
         animator.setInterpolator(new LinearInterpolator());//设置匀速转动
         animator.setRepeatCount(-1);//设置循环，此处设置的是无限循环。如果是正值，意味着转动多少圈。
 
         //声明一个意图，该意图进行服务的启动，意思是将MusicService里面的服务要传到主程序这里来。
-        Intent intent = new Intent(MainActivity.this,MusicService.class);
-        bindService(intent,connection,BIND_AUTO_CREATE);//建立意图中MainActivity与MusicService两对象的服务连接
+        Intent intent = new Intent(MainActivity.this, MusicService.class);
+        bindService(intent, connection, BIND_AUTO_CREATE);//建立意图中MainActivity与MusicService两对象的服务连接
 
         seekBarListener msbListener = new seekBarListener();
         sb.setOnSeekBarChangeListener(msbListener);
 
     }
+
     // 设置播放、暂停、继续和退出按钮的监听（或点击）事件
-    class OnClick implements View.OnClickListener{
+    class OnClick implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
-            switch (view.getId()){
+            switch (view.getId()) {
                 case R.id.btn_play:
                     //播放音乐
                     control.play();
@@ -124,7 +127,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     //Handler主要用于异步消息的处理，在这里是处理子线程MusicService传来的消息
-    public static Handler handler = new Handler(Looper.getMainLooper()){
+    public static Handler handler = new Handler(Looper.getMainLooper()) {
 
         @SuppressLint("SetTextI18n")
         @Override
@@ -138,35 +141,35 @@ public class MainActivity extends AppCompatActivity{
             sb.setProgress(currentDuration);
 
             //显示总时长
-            int minute = duration / 1000 /60;
+            int minute = duration / 1000 / 60;
             int second = duration / 1000 % 60;
             String strMinute = "";
             String strSecond = "";
-            if (minute < 10){
-                strMinute = "0" +minute;
-            }else {
+            if (minute < 10) {
+                strMinute = "0" + minute;
+            } else {
                 strMinute = minute + "";
             }
-            if (second < 10){
+            if (second < 10) {
                 strSecond = "0" + second;
-            }else {
+            } else {
                 strSecond = second + "";
             }
             tv_total.setText(strMinute + ":" + strSecond);
 
 
             //显示播放时长
-            minute = currentDuration / 1000 /60;
+            minute = currentDuration / 1000 / 60;
             second = currentDuration / 1000 % 60;
 
-            if (minute < 10){
-                strMinute = "0" +minute;
-            }else {
+            if (minute < 10) {
+                strMinute = "0" + minute;
+            } else {
                 strMinute = minute + "";
             }
-            if (second < 10){
+            if (second < 10) {
                 strSecond = "0" + second;
-            }else {
+            } else {
                 strSecond = second + "";
             }
             tv_progress.setText(strMinute + ":" + strSecond);
@@ -178,10 +181,10 @@ public class MainActivity extends AppCompatActivity{
         @Override
         //进度条行进过程的监听
         public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-            if (i == seekBar.getMax()){
+            if (i == seekBar.getMax()) {
                 animator.pause();
             }
-            if (b){//判断是否来自用户
+            if (b) {//判断是否来自用户
                 control.seekTo(i);
             }
         }
@@ -200,6 +203,4 @@ public class MainActivity extends AppCompatActivity{
             animator.resume();
         }
     }
-
-
 }
